@@ -35,4 +35,12 @@ class Page extends BaseController
             'content' => 'Ini adalah halaman Terms of Service yang berisi ketentuan penggunaan layanan.'
         ]);
     }
+
+    // File: app/Controllers/Page.php
+public function index()
+{
+    $title = 'Halaman Home';
+    $content = 'Selamat datang di website kami. Ini adalah halaman home yang menampilkan informasi terbaru.';
+    return view('home', compact('title', 'content'));
+}
 }

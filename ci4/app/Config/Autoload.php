@@ -60,7 +60,9 @@ class Autoload extends AutoloadConfig
      *
      * @var array<string, string>
      */
-    public $classmap = [];
+    public $classmap = [
+        'App\Models\ArtikelModel' => APPPATH . 'Models/ArtikelModel.php',
+    ];
 
     /**
      * -------------------------------------------------------------------
