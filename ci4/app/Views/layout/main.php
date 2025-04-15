@@ -21,8 +21,8 @@
                 <?= $this->renderSection('content') ?>
             </section>
             <aside id="sidebar">
-    <?= view_cell('App\\Cells\\ArtikelTerkini::render') ?>
-    <?= view_cell('App\\Cells\\ArtikelTerkini::render', ['kategori' => 'Teknologi']) ?>
+            <?= view_cell('\App\Cells\ArtikelTerkini::render') ?>    
+<?= view_cell('\App\Cells\ArtikelTerkini::render', ['kategori' => 'Teknologi']) ?>
                 <div class="widget-box">
                     <h3 class="title">Widget Header</h3>
                     <ul>

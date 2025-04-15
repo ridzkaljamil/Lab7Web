@@ -9,12 +9,12 @@ class ArtikelModel extends Model
     protected $table = 'artikel';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
-    protected $allowedFields = ['judul', 'isi', 'status', 'slug', 'gambar', 'kategori'];
+    protected $allowedFields = ['judul', 'isi', 'slug', 'gambar', 'kategori', 'status'];
     
-    public function getByKategori($kategori)
-    {
-        return $this->where('kategori', $kategori)
-                    ->orderBy('created_at', 'DESC')
-                    ->findAll();
-    }
+    // Tambahkan ini jika Anda menggunakan fitur timestamps
+    protected $useTimestamps = false;
+    protected $dateFormat = 'datetime';
+    protected $createdField = 'created_at';
+    protected $updatedField = '';
+    protected $deletedField = '';
 }

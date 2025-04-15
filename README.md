@@ -242,3 +242,69 @@ Perbedaan antara View Cell dan View biasa:
 ## Hasil akhir Praktikum 3
 
 ![Gambar ss3](screenshots/praktikum3/ss3.png)
+
+# Praktikum 4: Framework Lanjutan (Modul Login)
+
+## Langkah-langkah Praktikum
+
+### 1. Membuat Tabel User
+
+- Membuat tabel user di database lab_ci4
+  ![Gambar 1](screenshots/praktikum4/1.png)
+
+### 2. Membuat Model User
+
+- Membuat file UserModel.php
+  ![Gambar 2](screenshots/praktikum4/2.png)
+
+### 3. Membuat Controller User
+
+- Membuat file User.php dengan method login dan logout
+  ![Gambar 3](screenshots/praktikum4/3.png)
+
+### 4. Membuat View Login
+
+- Membuat file login.php di folder user
+  ![Gambar 41](screenshots/praktikum4/41.png)
+  ![Gambar 42](screenshots/praktikum4/42.png)
+
+### 5. Membuat Database Seeder
+
+- Membuat UserSeeder untuk data dummy
+  ![Gambar 51](screenshots/praktikum4/51.png)
+  ![Gambar 52](screenshots/praktikum4/52.png)
+  ![Gambar 53](screenshots/praktikum4/53.png)
+
+### 6. Menambahkan Auth Filter
+
+- Membuat file Auth.php di folder Filters
+  ![Gambar 61](screenshots/praktikum4/61.png)
+  ![Gambar 62](screenshots/praktikum4/62.png)
+  ![Gambar 63](screenshots/praktikum4/63.png)
+
+### 7. Menambahkan Fungsi Logout
+
+- Menambahkan tombol logout
+  ![Gambar 7](screenshots/praktikum4/71.png)
+
+## Improvisasi yang Dilakukan
+
+1. Menambahkan Halaman Register
+   ![Gambar 111](screenshots/praktikum4/im11.png)
+   ![Gambar 112](screenshots/praktikum4/im12.png)
+   ![Gambar 113](screenshots/praktikum4/im13.png)
+
+2. Menambahkan Dashboard Admin
+   ![Gambar 221](screenshots/praktikum4/im21.png)
+   ![Gambar 222](screenshots/praktikum4/im22.png)
+   ![Gambar 223](screenshots/praktikum4/im23.png)
+   ![Gambar 224](screenshots/praktikum4/im24.png)
+
+3. Memperbaiki tampilan dengan CSS
+   ![Gambar 31](screenshots/praktikum4/im31.png)
+
+## Hasil Akhir Praktikum 4
+
+![Gambar ss1](screenshots/praktikum4/ss1.png)
+![Gambar ss2](screenshots/praktikum4/ss2.png)
+![Gambar ss3](screenshots/praktikum4/ss3.png)
