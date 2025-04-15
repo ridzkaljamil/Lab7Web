@@ -1,4 +1,6 @@
-<?= $this->include('template/header'); ?>
+<?= $this->extend('layout/main') ?>
+
+<?= $this->section('content') ?>
 
 <h1><?= $title; ?></h1>
 
@@ -17,4 +19,4 @@
 </article>
 <?php endif; ?>
 
-<?= $this->include('template/footer'); ?>
+<?= $this->endSection() ?>

@@ -147,4 +147,98 @@ Saya telah melengkapi kode program untuk menu lainnya yang ada pada Controller P
 
 ![Gambar 15](screenshots/praktikum2/ss1.png)
 ![Gambar 16](screenshots/praktikum2/ss2.png)
-![Gambar 1](screenshots/praktikum2/ss3.png)
+![Gambar 17](screenshots/praktikum2/ss3.png)
+
+# Praktikum 3: View Layout dan View Cell
+
+## Langkah-langkah Praktikum
+
+### 1. Membuat Layout Utama
+
+- Membuat folder layout dan file main.php
+  ![Gambar 1](screenshots/praktikum3/1.png)
+
+### 2. Modifikasi File View
+
+- Mengubah file home.php, about.php, contact.php, index.php, detail.php untuk menggunakan layout baru
+  ![Gambar 21](screenshots/praktikum3/21.png)
+  ![Gambar 22](screenshots/praktikum3/22.png)
+  ![Gambar 23](screenshots/praktikum3/23.png)
+  ![Gambar 24](screenshots/praktikum3/24.png)
+  ![Gambar 25](screenshots/praktikum3/25.png)
+
+### 3. Menambahkan Field Tanggal pada Database
+
+- Menambahkan kolom created_at pada tabel artikel
+  ![Gambar 3](screenshots/praktikum3/3.png)
+
+### 4. Membuat Class View Cell
+
+- Membuat folder Cells dan file ArtikelTerkini.php
+  ![Gambar 4](screenshots/praktikum3/4.png)
+
+### 5. Membuat View untuk View Cell
+
+- Membuat folder components dan file artikel_terkini.php
+  ![Gambar 5](screenshots/praktikum3/5.png)
+
+### 6. Improvisasi - Menambahkan Kategori pada Artikel
+
+- Menambahkan kolom kategori dan mengimplementasikan filter berdasarkan kategori
+  ![Gambar 61](screenshots/praktikum3/61.png)
+  ![Gambar 62](screenshots/praktikum3/62.png)
+  ![Gambar 63](screenshots/praktikum3/63.png)
+  ![Gambar 64](screenshots/praktikum3/64.png)
+  ![Gambar 65](screenshots/praktikum3/65.png)
+
+## Jawaban Pertanyaan
+
+### 1. Apa manfaat utama dari penggunaan View Layout dalam pengembangan aplikasi?
+
+Manfaat utama dari penggunaan View Layout dalam pengembangan aplikasi adalah:
+
+1. **Konsistensi Tampilan**: View Layout memastikan semua halaman memiliki struktur dan tampilan yang konsisten.
+2. **Pemisahan Konten dan Layout**: Memisahkan konten spesifik halaman dari struktur layout umum, sehingga kode lebih terorganisir.
+3. **Penggunaan Kembali Kode (Reusability)**: Layout yang sama dapat digunakan oleh banyak halaman tanpa perlu menulis ulang kode.
+4. **Pemeliharaan yang Lebih Mudah**: Perubahan pada layout cukup dilakukan di satu tempat dan akan berlaku untuk semua halaman yang menggunakannya.
+5. **Pengembangan yang Lebih Cepat**: Pengembang dapat fokus pada konten halaman tanpa perlu mengulang-ulang kode layout.
+
+### 2. Jelaskan perbedaan antara View Cell dan View biasa.
+
+Perbedaan antara View Cell dan View biasa:
+
+1. **Fungsi dan Tujuan**:
+
+- **View Biasa**: Digunakan untuk menampilkan halaman lengkap atau bagian dari halaman.
+- **View Cell**: Digunakan untuk membuat komponen UI yang dapat digunakan ulang dan bersifat modular.
+
+2. **Cara Pemanggilan**:
+
+- **View Biasa**: Dipanggil dengan `return view('nama_view', $data)` atau `echo view('nama_view', $data)`.
+- **View Cell**: Dipanggil dengan `<?= view_cell('Namespace\\Class::method', $params) ?>`.
+
+3. **Logika Bisnis**:
+
+- **View Biasa**: Biasanya tidak memiliki logika bisnis, hanya menerima data dari controller.
+- **View Cell**: Dapat memiliki logika bisnis sendiri, seperti mengambil data dari database.
+
+4. **Penggunaan Kembali**:
+
+- **View Biasa**: Dapat digunakan kembali dengan include/extend, tetapi kurang fleksibel.
+- **View Cell**: Dirancang khusus untuk komponen yang digunakan berulang kali di berbagai halaman.
+
+5. **Isolasi**:
+
+- **View Biasa**: Berbagi konteks dengan view yang memanggilnya.
+- **View Cell**: Memiliki konteks tersendiri, terisolasi dari view yang memanggilnya.
+
+### 3. Ubah View Cell agar hanya menampilkan post dengan kategori tertentu.
+
+- Modifikasi method `render()` di class `ArtikelTerkini` untuk menerima parameter kategori:
+  ![Gambar 331](screenshots/praktikum3/331.png)
+- Panggil View Cell dengan parameter kategori di layout:
+  ![Gambar 332](screenshots/praktikum3/332.png)
+
+## Hasil akhir Praktikum 3
+
+![Gambar ss3](screenshots/praktikum3/ss3.png)
