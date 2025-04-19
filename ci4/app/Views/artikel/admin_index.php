@@ -1,10 +1,17 @@
-<?= $this->include('template/admin_header'); ?><?= $this->include('template/admin_header'); ?>
-
-<form action="" method="get" class="search-form">
-    <input type="text" name="q" placeholder="Cari artikel..." value="<?= $q ?? ''; ?>">
-    <input type="submit" value="Cari" class="btn">
+<?= $this->include('template/admin_header'); ?>
+<form method="get" class="form-search">
+    <input type="text" name="q" value="<?= $q; ?>" placeholder="Cari data">
+    <select name="kategori">
+        <option value="">Semua Kategori</option>
+        <?php foreach ($kategoris as $k): ?>
+        <option value="<?= $k['kategori']; ?>" <?= ($kategori == $k['kategori']) ? 'selected' : ''; ?>>
+            <?= $k['kategori']; ?>
+        </option>
+        <?php endforeach; ?>
+    </select>
+    <input type="submit" value="Cari" class="btn btn-primary">
 </form>
-
+<p>Ditemukan <?= $pager->getTotal() ?> data</p>
 <table class="table">
     <thead>
         <tr>
@@ -34,14 +41,7 @@
     </tr>
     <?php endif; ?>
     </tbody>
-    <tfoot>
-        <tr>
-            <th>ID</th>
-            <th>Judul</th>
-            <th>Status</th>
-            <th>Aksi</th>
-        </tr>
-    </tfoot>
-</table>
 
+</table>
+<?= $pager->only(['q', 'kategori'])->links(); ?>
 <?= $this->include('template/admin_footer'); ?>

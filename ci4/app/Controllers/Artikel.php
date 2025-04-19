@@ -30,12 +30,33 @@ class Artikel extends BaseController
     }
 
     public function admin_index()
-    {
-        $title = 'Daftar Artikel';
-        $model = new ArtikelModel();
-        $artikel = $model->findAll();
-        return view('artikel/admin_index', compact('artikel', 'title'));
+{
+    $title = 'Daftar Artikel';
+    $q = $this->request->getVar('q') ?? '';
+    $kategori = $this->request->getVar('kategori') ?? '';
+    
+    $model = new ArtikelModel();
+    $query = $model;
+    
+    if ($q) {
+        $query = $query->like('judul', $q);
     }
+    
+    if ($kategori) {
+        $query = $query->where('kategori', $kategori);
+    }
+    
+    $data = [
+        'title'     => $title,
+        'q'         => $q,
+        'kategori'  => $kategori,
+        'artikel'   => $query->paginate(10),
+        'pager'     => $model->pager,
+        'kategoris' => $model->distinct()->select('kategori')->findAll()
+    ];
+    
+    return view('artikel/admin_index', $data);
+}
 
     public function add()
     {

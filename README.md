@@ -308,3 +308,33 @@ Perbedaan antara View Cell dan View biasa:
 ![Gambar ss1](screenshots/praktikum4/ss1.png)
 ![Gambar ss2](screenshots/praktikum4/ss2.png)
 ![Gambar ss3](screenshots/praktikum4/ss3.png)
+
+# Praktikum 5: Pagination dan Pencarian
+
+## Langkah-langkah Praktikum
+
+### 1. Membuat Pagination
+
+#### Modifikasi Controller Artikel dan View admin_index.php
+
+![Gambar 1](screenshots/praktikum5/1.png)
+![Gambar 2](screenshots/praktikum5/2.png)
+![Gambar 3](screenshots/praktikum5/3.png)
+
+### 2. Membuat Pencarian 5
+
+#### Modifikasi method `admin_index` untuk menambahkan fitur pencarian dan link Pagination, lalu tambahkan form pencarian di View.
+
+![Gambar 4](screenshots/praktikum5/4.png)
+![Gambar 5](screenshots/praktikum5/5.png)
+![Gambar 6](screenshots/praktikum5/6.png)
+![Gambar 7](screenshots/praktikum5/7.png)
+
+### 3. Melakukan Improvisasi yaitu : menambahkan fitur pencarian berdasarkan kategori, dan menampilkan jumlah data yang ditemukan.
+
+![Gambar 8](screenshots/praktikum5/8.png)
+![Gambar 9](screenshots/praktikum5/9.png)
+
+### Hasil Akhir Praktikum 5.
+
+![Gambar ss](screenshots/praktikum5/ss.png)
