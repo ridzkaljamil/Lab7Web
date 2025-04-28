@@ -58,37 +58,29 @@ class Artikel extends BaseController
     return view('artikel/admin_index', $data);
 }
 
-    public function add()
-    {
-        // Validasi form jika ada POST request
-        if ($this->request->getMethod() === 'post') {
-            // Ambil data dari form
-            $data = [
-                'judul' => $this->request->getPost('judul'),
-                'isi' => $this->request->getPost('isi'),
-                'slug' => url_title($this->request->getPost('judul'), '-', true),
-                'kategori' => $this->request->getPost('kategori'),
-                'status' => $this->request->getPost('status') ?? 'published'
-            ];
-            
-            // Upload gambar jika ada
-            $file = $this->request->getFile('gambar');
-            if ($file->isValid() && !$file->hasMoved()) {
-                $newName = $file->getRandomName();
-                $file->move(ROOTPATH . 'public/gambar', $newName);
-                $data['gambar'] = $newName;
-            }
-            
-            // Simpan artikel
-            $model = new ArtikelModel();
-            $model->insert($data);
-            
-            return redirect()->to('/admin/artikel');
-        }
-        
-        $title = 'Tambah Artikel';
-        return view('artikel/form_add', compact('title'));
-    }
+public function add()
+{
+// validasi data.
+$validation = \Config\Services::validation();
+$validation->setRules(['judul' => 'required']);
+$isDataValid = $validation->withRequest($this->request)->run();
+
+if ($isDataValid)
+{
+$file = $this->request->getFile('gambar');
+$file->move(ROOTPATH . 'public/gambar');
+
+$artikel = new ArtikelModel();
+$artikel->insert([
+'judul' => $this->request->getPost('judul'), 'isi'	=> $this->request->getPost('isi'),
+'slug'	=> url_title($this->request->getPost('judul')), 'gambar' => $file->getName(),
+]);
+return redirect('admin/artikel');
+}
+$title = "Tambah Artikel";
+return view('artikel/form_add', compact('title'));
+}
+
 
     public function edit($id = null)
     {

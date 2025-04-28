@@ -338,3 +338,28 @@ Perbedaan antara View Cell dan View biasa:
 ### Hasil Akhir Praktikum 5.
 
 ![Gambar ss](screenshots/praktikum5/ss.png)
+
+# Praktikum 6: Upload File Gambar
+
+## Langkah-langkah Praktikum
+
+### 1. Modifikasi Method add() pada Controller Artikel
+
+#### Modifikasi Controller Artikel
+
+![Gambar 1](screenshots/praktikum6/1.png)
+
+### 2. Modifikasi file form_add.php
+
+#### Menambahkan field input dan sesuaikan tag form dengan menambahkan ecrypt type.
+
+![Gambar 2](screenshots/praktikum6/2.png)
+
+### 3. Ujicoba file upload dengan mengakses menu tambah artikel.
+
+![Gambar 3](screenshots/praktikum6/31.png)
+![Gambar 4](screenshots/praktikum6/32.png)
+
+### Hasil Akhir Praktikum 6.
+
+![Gambar ss](screenshots/praktikum6/ss6.png)
