@@ -321,7 +321,7 @@ Perbedaan antara View Cell dan View biasa:
 ![Gambar 2](screenshots/praktikum5/2.png)
 ![Gambar 3](screenshots/praktikum5/3.png)
 
-### 2. Membuat Pencarian 5
+### 2. Membuat Pencarian
 
 #### Modifikasi method `admin_index` untuk menambahkan fitur pencarian dan link Pagination, lalu tambahkan form pencarian di View.
 
