@@ -363,3 +363,105 @@ Perbedaan antara View Cell dan View biasa:
 ### Hasil Akhir Praktikum 6.
 
 ![Gambar ss](screenshots/praktikum6/ss6.png)
+
+# Praktikum 7: Relasi Tabel dan Query Builder
+
+## Tujuan
+
+- Memahami konsep relasi antar tabel dalam database
+- Mengimplementasikan relasi One-to-Many
+- Melakukan query dengan join tabel menggunakan Query Builder
+- Menampilkan data dari tabel yang berelasi
+
+## Langkah-langkah Praktikum
+
+### 1. Membuat Tabel Kategori
+
+Saya membuat tabel kategori dengan struktur:
+
+- id_kategori (INT, PRIMARY KEY, AUTO_INCREMENT)
+- nama_kategori (VARCHAR 100)
+- slug_kategori (VARCHAR 100)
+
+```sql
+CREATE TABLE kategori (
+    id_kategori INT(11) AUTO_INCREMENT,
+    nama_kategori VARCHAR(100) NOT NULL,
+    slug_kategori VARCHAR(100),
+    PRIMARY KEY (id_kategori)
+);
+```
+
+![Gambar 1](screenshots/praktikum7/1.png)
+
+### 2. Menambahkan Foreign Key ke Tabel Artikel
+
+Saya menambahkan kolom id_kategori ke tabel artikel dan membuat foreign key constraint:
+
+```sql
+ALTER TABLE artikel
+ADD COLUMN id_kategori INT(11),
+ADD CONSTRAINT fk_kategori_artikel
+FOREIGN KEY (id_kategori) REFERENCES kategori(id_kategori);
+```
+
+![Gambar 1](screenshots/praktikum7/2.png)
+![Gambar 1](screenshots/praktikum7/3.png)
+![Gambar 1](screenshots/praktikum7/4.png)
+
+### 3. Membuat Model Kategori
+
+Saya membuat KategoriModel.php untuk mengelola data kategori:
+
+![Gambar](screenshots/praktikum7/5.png)
+
+### 4. Memodifikasi Model Artikel
+
+Saya menambahkan method getArtikelDenganKategori() untuk melakukan JOIN:
+
+![Gambar](screenshots/praktikum7/6.png)
+
+### 5. Memodifikasi Controller Artikel
+
+Saya mengupdate controller untuk menggunakan relasi tabel:
+
+![Gambar](screenshots/praktikum7/7.png)
+
+### 6. Memodifikasi View
+
+Saya mengupdate semua view untuk menampilkan kategori:
+
+![Gambar](screenshots/praktikum7/8.png)
+![Gambar](screenshots/praktikum7/9.png)
+![Gambar](screenshots/praktikum7/10.png)
+![Gambar](screenshots/praktikum7/11.png)
+![Gambar](screenshots/praktikum7/12.png)
+![Gambar](screenshots/praktikum7/13.png)
+![Gambar](screenshots/praktikum7/14.png)
+
+### 7. Testing
+
+Hasil testing menunjukkan semua fitur berjalan dengan baik:
+![Gambar](screenshots/praktikum7/15.png)
+![Gambar](screenshots/praktikum7/16.png)
+![Gambar](screenshots/praktikum7/17.png)
+![Gambar](screenshots/praktikum7/18.png)
+![Gambar](screenshots/praktikum7/19.png)
+
+## Pertanyaan dan Tugas
+
+### 1. Modifikasi tampilan detail artikel
+
+Saya telah memodifikasi detail.php untuk menampilkan nama kategori artikel.
+
+### 2. Menampilkan daftar kategori di halaman depan
+
+Saya menambahkan widget kategori di sidebar.
+
+### 3. Fungsi menampilkan artikel berdasarkan kategori
+
+Saya membuat method kategori() di controller dan view kategori.php.
+
+### Hasil Praktikum 7
+
+![Gambar](screenshots/praktikum7/ss.png)

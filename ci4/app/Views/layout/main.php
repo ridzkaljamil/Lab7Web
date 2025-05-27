@@ -1,54 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title><?= $title ?? 'My Website' ?></title>
-    <link rel="stylesheet" href="<?= base_url('/style.css');?>">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= isset($title) ? $title : 'Website Artikel'; ?></title>
+    <link rel="stylesheet" href="<?= base_url('/style.css'); ?>">
 </head>
 <body>
     <div id="container">
         <header>
-            <h1>Layout Sederhana</h1>
+            <nav>
+                <a href="<?= base_url('/'); ?>" class="active">Home</a>
+                <a href="<?= base_url('/artikel'); ?>">Artikel</a>
+                <a href="<?= base_url('/about'); ?>">About</a>
+                <a href="<?= base_url('/contact'); ?>">Contact</a>
+                <?php if (session()->get('logged_in')): ?>
+                    <a href="<?= base_url('/admin/dashboard'); ?>">Dashboard</a>
+                    <a href="<?= base_url('/user/logout'); ?>">Logout</a>
+                <?php else: ?>
+                    <a href="<?= base_url('/user/login'); ?>">Login</a>
+                <?php endif; ?>
+            </nav>
         </header>
-        <nav>
-            <a href="<?= base_url('/');?>" class="active">Home</a>
-            <a href="<?= base_url('/artikel');?>">Artikel</a>
-            <a href="<?= base_url('/about');?>">About</a>
-            <a href="<?= base_url('/contact');?>">Kontak</a>
-        </nav>
+        
         <section id="wrapper">
             <section id="main">
-                <?= $this->renderSection('content') ?>
+                <?= $this->renderSection('content'); ?>
             </section>
+            
             <aside id="sidebar">
-            <?= view_cell('\App\Cells\ArtikelTerkini::render') ?>    
-<?= view_cell('\App\Cells\ArtikelTerkini::render', ['kategori' => 'Teknologi']) ?>
-                <div class="widget-box">
-                    <h3 class="title">Widget Header</h3>
-                    <ul>
-                        <li><a href="#">Widget Link</a></li>
-                        <li><a href="#">Widget Link</a></li>
-                    </ul>
-                </div>
-                <div class="widget-box">
-                    <h3 class="title">Widget Text</h3>
-                    <p>Vestibulum lorem elit, iaculis in nisl volutpat, malesuada tincidunt arcu. Proin in leo fringilla, vestibulum mi porta, faucibus felis. Integer pharetra est nunc, nec pretium nunc pretium ac.</p>
-                </div>
-                <div class="widget-box">
-        <h3 class="title">Widget Header</h3>
-        <ul>
-            <li><a href="#">Widget Link</a></li>
-            <li><a href="#">Widget Link</a></li>
-        </ul>
-    </div>
-    <div class="widget-box">
-        <h3 class="title">Widget Text</h3>
-        <p>Vestibulum lorem elit, iaculis in nisl volutpat, malesuada tincidunt arcu. Proin in leo fringilla, vestibulum mi porta, faucibus felis. Integer pharetra est nunc, nec pretium nunc pretium ac.</p>
-    </div>
+                <!-- Tambahkan di sidebar -->
+<div class="widget-box">
+    <h3 class="title">Kategori</h3>
+    <ul>
+        <?php 
+        $kategoriModel = new \App\Models\KategoriModel();
+        $kategoris = $kategoriModel->findAll();
+        foreach($kategoris as $k): 
+        ?>
+        <li><a href="<?= base_url('/kategori/' . $k['slug_kategori']) ?>"><?= $k['nama_kategori'] ?></a></li>
+        <?php endforeach; ?>
+    </ul>
+</div>          
+                <?php 
+                // Panggil cell dengan parameter kosong untuk menghindari error
+                try {
+                    echo view_cell('\\App\\Cells\\ArtikelTerkini::render', []);
+                } catch (\Exception $e) {
+                    log_message('error', 'Error loading ArtikelTerkini cell: ' . $e->getMessage());
+                    echo '<div class="widget-box"><h3 class="title">Artikel Terkini</h3><div class="alert alert-warning">Widget sedang dalam perbaikan</div></div>';
+                }
+                ?>
             </aside>
         </section>
+        
         <footer>
-            <p>&copy; 2021 - Universitas Pelita Bangsa</p>
+            <p>&copy; 2024 - Universitas Pelita Bangsa</p>
         </footer>
     </div>
 </body>

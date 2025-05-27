@@ -3,143 +3,446 @@
 namespace App\Controllers;
 
 use App\Models\ArtikelModel;
+use App\Models\KategoriModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 class Artikel extends BaseController
 {
+    protected $helpers = ['url', 'form'];
+    
     public function index()
     {
         $title = 'Daftar Artikel';
         $model = new ArtikelModel();
-        $artikel = $model->findAll();
-        return view('artikel/index', compact('artikel', 'title'));
+        
+        try {
+            $artikel = $model->getArtikelDenganKategori();
+            return view('artikel/index', compact('artikel', 'title'));
+        } catch (\Exception $e) {
+            log_message('error', 'Error di Artikel::index: ' . $e->getMessage());
+            $artikel = [];
+            return view('artikel/index', compact('artikel', 'title'));
+        }
+    }
+
+    public function admin_index()
+    {
+        // Cek login admin
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/user/login');
+        }
+        
+        $title = 'Daftar Artikel (Admin)';
+        $model = new ArtikelModel();
+
+        // Get search keyword
+        $q = $this->request->getVar('q') ?? '';
+        // Get category filter
+        $kategori_id = $this->request->getVar('kategori_id') ?? '';
+
+        $data = [
+            'title' => $title,
+            'q' => $q,
+            'kategori_id' => $kategori_id,
+        ];
+
+        try {
+            // Building the query
+            $builder = $model->table('artikel')
+                            ->select('artikel.*, COALESCE(kategori.nama_kategori, "Tidak ada kategori") as nama_kategori')
+                            ->join('kategori', 'kategori.id_kategori = artikel.id_kategori', 'left');
+
+            // Apply search filter if keyword is provided
+            if ($q != '') {
+                $builder->like('artikel.judul', $q);
+            }
+
+            // Apply category filter if category_id is provided
+            if ($kategori_id != '') {
+                $builder->where('artikel.id_kategori', $kategori_id);
+            }
+
+            // Get results as array
+            $artikelData = $builder->paginate(10);
+            
+            // Pastikan data adalah array
+            if (is_array($artikelData)) {
+                $data['artikel'] = $artikelData;
+            } else {
+                log_message('error', 'Artikel data bukan array: ' . gettype($artikelData));
+                $data['artikel'] = [];
+            }
+            
+            $data['pager'] = $model->pager;
+
+            // Fetch all categories for the filter dropdown
+            $kategoriModel = new KategoriModel();
+            $data['kategori'] = $kategoriModel->findAll();
+
+            return view('artikel/admin_index', $data);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error di admin_index: ' . $e->getMessage());
+            $data['artikel'] = [];
+            $data['pager'] = null;
+            $data['kategori'] = [];
+            return view('artikel/admin_index', $data);
+        }
+    }
+
+    public function add()
+    {
+        // Cek login admin
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/user/login');
+        }
+        
+        // Load kategori data terlebih dahulu
+        $kategoriModel = new KategoriModel();
+        $data = [
+            'title' => "Tambah Artikel",
+            'kategori' => $kategoriModel->findAll(),
+            'validation' => null
+        ];
+
+        // Handle POST request
+        if ($this->request->getMethod() === 'POST') {
+            
+            // Validation rules
+            $rules = [
+                'judul' => [
+                    'label' => 'Judul',
+                    'rules' => 'required|min_length[3]|max_length[200]',
+                    'errors' => [
+                        'required' => 'Judul harus diisi',
+                        'min_length' => 'Judul minimal 3 karakter',
+                        'max_length' => 'Judul maksimal 200 karakter'
+                    ]
+                ],
+                'isi' => [
+                    'label' => 'Isi',
+                    'rules' => 'required|min_length[10]',
+                    'errors' => [
+                        'required' => 'Isi artikel harus diisi',
+                        'min_length' => 'Isi artikel minimal 10 karakter'
+                    ]
+                ],
+                'id_kategori' => [
+                    'label' => 'Kategori',
+                    'rules' => 'required|integer',
+                    'errors' => [
+                        'required' => 'Kategori harus dipilih',
+                        'integer' => 'Kategori tidak valid'
+                    ]
+                ]
+            ];
+
+            if ($this->validate($rules)) {
+                
+                $model = new ArtikelModel();
+                
+                try {
+                    // Handle file upload
+                    $file = $this->request->getFile('gambar');
+                    $gambar = '';
+                    
+                    if ($file && $file->isValid() && !$file->hasMoved()) {
+                        
+                        // Validasi file
+                        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                        if (!in_array($file->getMimeType(), $allowedTypes)) {
+                            session()->setFlashdata('error', 'Format file tidak didukung. Gunakan JPG, PNG, atau GIF.');
+                            return redirect()->back()->withInput();
+                        }
+                        
+                        if ($file->getSize() > 2048000) { // 2MB
+                            session()->setFlashdata('error', 'Ukuran file terlalu besar. Maksimal 2MB.');
+                            return redirect()->back()->withInput();
+                        }
+                        
+                        $gambar = $file->getRandomName();
+                        
+                        // Pastikan direktori gambar ada
+                        $uploadPath = ROOTPATH . 'public/gambar';
+                        if (!is_dir($uploadPath)) {
+                            if (!mkdir($uploadPath, 0755, true)) {
+                                session()->setFlashdata('error', 'Gagal membuat direktori upload.');
+                                return redirect()->back()->withInput();
+                            }
+                        }
+                        
+                        if (!$file->move($uploadPath, $gambar)) {
+                            session()->setFlashdata('error', 'Gagal mengupload file.');
+                            return redirect()->back()->withInput();
+                        }
+                    }
+                    
+                    // Prepare data for insertion
+                    $insertData = [
+                        'judul' => trim($this->request->getPost('judul')),
+                        'isi' => trim($this->request->getPost('isi')),
+                        'slug' => url_title($this->request->getPost('judul'), '-', true),
+                        'id_kategori' => (int)$this->request->getPost('id_kategori'),
+                        'gambar' => $gambar,
+                        'status' => 'published'
+                    ];
+                    
+                    // Insert data
+                    $result = $model->insert($insertData);
+                    
+                    if ($result) {
+                        session()->setFlashdata('success', 'Artikel berhasil ditambahkan!');
+                        return redirect()->to('/admin/artikel');
+                    } else {
+                        $errors = $model->errors();
+                        $errorMessage = 'Gagal menambahkan artikel';
+                        if (!empty($errors)) {
+                            $errorMessage .= ': ' . implode(', ', $errors);
+                        }
+                        session()->setFlashdata('error', $errorMessage);
+                        return redirect()->back()->withInput();
+                    }
+                    
+                } catch (\Exception $e) {
+                    log_message('error', 'Exception in add artikel: ' . $e->getMessage());
+                    session()->setFlashdata('error', 'Gagal menambahkan artikel: ' . $e->getMessage());
+                    return redirect()->back()->withInput();
+                }
+            } else {
+                $data['validation'] = $this->validator;
+                session()->setFlashdata('error', 'Data tidak valid. Periksa kembali form Anda.');
+            }
+        }
+
+        // GET request - show form
+        return view('artikel/form_add', $data);
+    }
+
+    public function edit($id = null)
+    {
+        // Cek login admin
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/user/login');
+        }
+        
+        if (!$id || !is_numeric($id)) {
+            throw new PageNotFoundException('Artikel tidak ditemukan.');
+        }
+        
+        $model = new ArtikelModel();
+        
+        // Ambil data artikel
+        $artikel = $model->find($id);
+        if (!$artikel) {
+            throw new PageNotFoundException('Artikel tidak ditemukan.');
+        }
+
+        // Load kategori data
+        $kategoriModel = new KategoriModel();
+        $data = [
+            'title' => "Edit Artikel",
+            'artikel' => $artikel,
+            'kategori' => $kategoriModel->findAll(),
+            'validation' => null
+        ];
+
+        // Handle POST request
+        if ($this->request->getMethod() === 'POST') {
+
+            // Validation rules
+            $rules = [
+                'judul' => [
+                    'label' => 'Judul',
+                    'rules' => 'required|min_length[3]|max_length[200]',
+                    'errors' => [
+                        'required' => 'Judul harus diisi',
+                        'min_length' => 'Judul minimal 3 karakter',
+                        'max_length' => 'Judul maksimal 200 karakter'
+                    ]
+                ],
+                'isi' => [
+                    'label' => 'Isi',
+                    'rules' => 'required|min_length[10]',
+                    'errors' => [
+                        'required' => 'Isi artikel harus diisi',
+                        'min_length' => 'Isi artikel minimal 10 karakter'
+                    ]
+                ],
+                'id_kategori' => [
+                    'label' => 'Kategori',
+                    'rules' => 'required|integer',
+                    'errors' => [
+                        'required' => 'Kategori harus dipilih',
+                        'integer' => 'Kategori tidak valid'
+                    ]
+                ]
+            ];
+
+            if ($this->validate($rules)) {
+                try {
+                    // Prepare update data
+                    $updateData = [
+                        'judul' => trim($this->request->getPost('judul')),
+                        'isi' => trim($this->request->getPost('isi')),
+                        'slug' => url_title($this->request->getPost('judul'), '-', true),
+                        'id_kategori' => (int)$this->request->getPost('id_kategori')
+                    ];
+                    
+                    // Handle file upload
+                    $file = $this->request->getFile('gambar');
+                    if ($file && $file->isValid() && !$file->hasMoved()) {
+                        // Validasi file
+                        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                        if (!in_array($file->getMimeType(), $allowedTypes)) {
+                            session()->setFlashdata('error', 'Format file tidak didukung. Gunakan JPG, PNG, atau GIF.');
+                            return redirect()->back()->withInput();
+                        }
+                        
+                        if ($file->getSize() > 2048000) { // 2MB
+                            session()->setFlashdata('error', 'Ukuran file terlalu besar. Maksimal 2MB.');
+                            return redirect()->back()->withInput();
+                        }
+                        
+                        // Delete old image if exists
+                        if (!empty($artikel['gambar']) && file_exists(ROOTPATH . 'public/gambar/' . $artikel['gambar'])) {
+                            unlink(ROOTPATH . 'public/gambar/' . $artikel['gambar']);
+                        }
+                        
+                        $gambar = $file->getRandomName();
+                        
+                        // Pastikan direktori gambar ada
+                        $uploadPath = ROOTPATH . 'public/gambar';
+                        if (!is_dir($uploadPath)) {
+                            if (!mkdir($uploadPath, 0755, true)) {
+                                session()->setFlashdata('error', 'Gagal membuat direktori upload.');
+                                return redirect()->back()->withInput();
+                            }
+                        }
+                        
+                        if (!$file->move($uploadPath, $gambar)) {
+                            session()->setFlashdata('error', 'Gagal mengupload file.');
+                            return redirect()->back()->withInput();
+                        }
+                        
+                        $updateData['gambar'] = $gambar;
+                    }
+                    
+                    $result = $model->update($id, $updateData);
+                    
+                    if ($result !== false) {
+                        session()->setFlashdata('success', 'Artikel berhasil diupdate!');
+                        return redirect()->to('/admin/artikel');
+                    } else {
+                        $errors = $model->errors();
+                        $errorMessage = 'Gagal mengupdate artikel';
+                        if (!empty($errors)) {
+                            $errorMessage .= ': ' . implode(', ', $errors);
+                        }
+                        session()->setFlashdata('error', $errorMessage);
+                        return redirect()->back()->withInput();
+                    }
+                    
+                } catch (\Exception $e) {
+                    log_message('error', 'Exception in edit artikel: ' . $e->getMessage());
+                    session()->setFlashdata('error', 'Gagal mengupdate artikel: ' . $e->getMessage());
+                    return redirect()->back()->withInput();
+                }
+            } else {
+                $data['validation'] = $this->validator;
+                session()->setFlashdata('error', 'Data tidak valid. Periksa kembali form Anda.');
+            }
+        }
+
+        // GET request - show form
+        return view('artikel/form_edit', $data);
+    }
+
+    public function delete($id)
+    {
+        // Cek login admin
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/user/login');
+        }
+        
+        if (!$id || !is_numeric($id)) {
+            session()->setFlashdata('error', 'ID artikel tidak valid.');
+            return redirect()->to('/admin/artikel');
+        }
+        
+        $model = new ArtikelModel();
+        
+        try {
+            $artikel = $model->find($id);
+            
+            if ($artikel) {
+                // Hapus gambar jika ada
+                if (isset($artikel['gambar']) && $artikel['gambar'] && file_exists(ROOTPATH . 'public/gambar/' . $artikel['gambar'])) {
+                    unlink(ROOTPATH . 'public/gambar/' . $artikel['gambar']);
+                }
+                
+                $result = $model->delete($id);
+                
+                if ($result) {
+                    session()->setFlashdata('success', 'Artikel berhasil dihapus!');
+                } else {
+                    session()->setFlashdata('error', 'Gagal menghapus artikel.');
+                }
+            } else {
+                session()->setFlashdata('error', 'Artikel tidak ditemukan.');
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error di delete artikel: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal menghapus artikel: ' . $e->getMessage());
+        }
+        
+        return redirect()->to('/admin/artikel');
     }
 
     public function view($slug)
     {
         $model = new ArtikelModel();
-        $artikel = $model->where('slug', $slug)->first();
         
-        // Jika artikel tidak ditemukan, tampilkan 404
-        if (!$artikel) {
-            throw PageNotFoundException::forPageNotFound();
-        }
-        
-        $title = $artikel['judul'];
-        return view('artikel/detail', compact('artikel', 'title'));
-    }
-
-    public function admin_index()
-{
-    $title = 'Daftar Artikel';
-    $q = $this->request->getVar('q') ?? '';
-    $kategori = $this->request->getVar('kategori') ?? '';
-    
-    $model = new ArtikelModel();
-    $query = $model;
-    
-    if ($q) {
-        $query = $query->like('judul', $q);
-    }
-    
-    if ($kategori) {
-        $query = $query->where('kategori', $kategori);
-    }
-    
-    $data = [
-        'title'     => $title,
-        'q'         => $q,
-        'kategori'  => $kategori,
-        'artikel'   => $query->paginate(10),
-        'pager'     => $model->pager,
-        'kategoris' => $model->distinct()->select('kategori')->findAll()
-    ];
-    
-    return view('artikel/admin_index', $data);
-}
-
-public function add()
-{
-// validasi data.
-$validation = \Config\Services::validation();
-$validation->setRules(['judul' => 'required']);
-$isDataValid = $validation->withRequest($this->request)->run();
-
-if ($isDataValid)
-{
-$file = $this->request->getFile('gambar');
-$file->move(ROOTPATH . 'public/gambar');
-
-$artikel = new ArtikelModel();
-$artikel->insert([
-'judul' => $this->request->getPost('judul'), 'isi'	=> $this->request->getPost('isi'),
-'slug'	=> url_title($this->request->getPost('judul')), 'gambar' => $file->getName(),
-]);
-return redirect('admin/artikel');
-}
-$title = "Tambah Artikel";
-return view('artikel/form_add', compact('title'));
-}
-
-
-    public function edit($id = null)
-    {
-        $model = new ArtikelModel();
-        $artikel = $model->where('id', $id)->first();
-        
-        if (!$artikel) {
-            throw PageNotFoundException::forPageNotFound();
-        }
-        
-        // Validasi form jika ada POST request
-        if ($this->request->getMethod() === 'post') {
-            // Ambil data dari form
-            $data = [
-                'judul' => $this->request->getPost('judul'),
-                'isi' => $this->request->getPost('isi'),
-                'slug' => url_title($this->request->getPost('judul'), '-', true),
-                'kategori' => $this->request->getPost('kategori'),
-                'status' => $this->request->getPost('status') ?? $artikel['status']
-            ];
+        try {
+            $data['artikel'] = $model->getArtikelBySlugDenganKategori($slug);
             
-            // Upload gambar jika ada
-            $file = $this->request->getFile('gambar');
-            if ($file->isValid() && !$file->hasMoved()) {
-                $newName = $file->getRandomName();
-                $file->move(ROOTPATH . 'public/gambar', $newName);
-                $data['gambar'] = $newName;
-                
-                // Hapus gambar lama jika ada
-                if ($artikel['gambar'] && file_exists(ROOTPATH . 'public/gambar/' . $artikel['gambar'])) {
-                    unlink(ROOTPATH . 'public/gambar/' . $artikel['gambar']);
-                }
+            if (empty($data['artikel'])) {
+                throw new PageNotFoundException('Artikel tidak ditemukan.');
             }
             
-            // Update artikel
-            $model->update($id, $data);
+            $data['title'] = $data['artikel']['judul'];
+            return view('artikel/detail', $data);
             
-            return redirect()->to('/admin/artikel');
+        } catch (\Exception $e) {
+            log_message('error', 'Error di view artikel: ' . $e->getMessage());
+            throw new PageNotFoundException('Artikel tidak ditemukan.');
         }
-        
-        $title = 'Edit Artikel';
-        return view('artikel/form_edit', compact('artikel', 'title'));
     }
-
-    public function delete($id = null)
+    
+    public function kategori($slug_kategori)
     {
-        $model = new ArtikelModel();
-        $artikel = $model->where('id', $id)->first();
+        $kategoriModel = new KategoriModel();
         
-        if (!$artikel) {
-            throw PageNotFoundException::forPageNotFound();
+        try {
+            $kategori = $kategoriModel->getKategoriBySlug($slug_kategori);
+            
+            if (!$kategori) {
+                throw new PageNotFoundException('Kategori tidak ditemukan.');
+            }
+            
+            $model = new ArtikelModel();
+            $artikel = $model->getArtikelByKategori($kategori['id_kategori']);
+            
+            $data = [
+                'title' => 'Artikel Kategori: ' . $kategori['nama_kategori'],
+                'artikel' => $artikel,
+                'kategori' => $kategori
+            ];
+            
+            return view('artikel/kategori', $data);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error di kategori: ' . $e->getMessage());
+            throw new PageNotFoundException('Kategori tidak ditemukan.');
         }
-        
-        // Hapus gambar jika ada
-        if ($artikel['gambar'] && file_exists(ROOTPATH . 'public/gambar/' . $artikel['gambar'])) {
-            unlink(ROOTPATH . 'public/gambar/' . $artikel['gambar']);
-        }
-        
-        $model->delete($id);
-        return redirect()->to('/admin/artikel');
     }
 }

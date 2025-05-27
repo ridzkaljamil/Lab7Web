@@ -6,32 +6,28 @@ use App\Models\ArtikelModel;
 
 class ArtikelTerkini
 {
-    public function render($kategori = null)
+    public function render($params = [])
     {
-        $model = new ArtikelModel();
-        
         try {
-            if ($kategori !== null) {
-                // Gunakan where dengan nilai string yang valid
-                $artikel = $model->where('kategori', $kategori)
-                                ->orderBy('created_at', 'DESC')
-                                ->limit(5)
-                                ->findAll();
-            } else {
-                // Jika tidak ada kategori, ambil semua artikel
-                $artikel = $model->orderBy('created_at', 'DESC')
-                                ->limit(5)
-                                ->findAll();
+            $model = new ArtikelModel();
+            
+            // Query sederhana tanpa join untuk menghindari error
+            $artikel = $model->select('id, judul, slug, created_at')
+                           ->where('status', 'published')
+                           ->orderBy('created_at', 'DESC')
+                           ->limit(5)
+                           ->findAll();
+            
+            // Pastikan artikel adalah array
+            if (!is_array($artikel)) {
+                $artikel = [];
             }
+            
+            return view('cells/artikel_terkini', ['artikel' => $artikel]);
+            
         } catch (\Exception $e) {
-            // Tangkap error dan berikan array kosong sebagai fallback
-            $artikel = [];
             log_message('error', 'Error di ArtikelTerkini: ' . $e->getMessage());
+            return '<div class="widget-box"><h3 class="title">Artikel Terkini</h3><div class="alert alert-info">Artikel sedang dimuat...</div></div>';
         }
-        
-        return view('components/artikel_terkini', [
-            'artikel' => $artikel,
-            'kategori' => $kategori
-        ]);
     }
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Filters;
 
@@ -10,10 +10,9 @@ class Auth implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        // jika user belum login
-        if(! session()->get('logged_in')){
-            // maka redirct ke halaman login
-            return redirect()->to('/user/login');
+        // Cek apakah user sudah login
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/user/login')->with('error', 'Silakan login terlebih dahulu');
         }
     }
 
