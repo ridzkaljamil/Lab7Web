@@ -1,232 +1,261 @@
-<?= $this->extend('layout/main') ?>
+<?= $this->include('template/admin_header'); ?>
 
-<?= $this->section('content') ?>
+<h2><?= $title; ?></h2>
 
-<h1><?= $title; ?></h1>
-<hr>
-
-<!-- Form Pencarian dan Filter -->
-<div class="search-filter">
-    <form method="GET" action="<?= base_url('/admin/artikel'); ?>">
-        <div class="form-row">
-            <div class="form-group">
-                <input type="text" name="q" placeholder="Cari artikel..." value="<?= esc($q); ?>" class="form-control">
-            </div>
-            <div class="form-group">
-                <select name="kategori_id" class="form-control">
-                    <option value="">Semua Kategori</option>
-                    <?php if (!empty($kategori) && is_array($kategori)): ?>
-                        <?php foreach ($kategori as $kat): ?>
-                            <?php if (is_array($kat) && isset($kat['id_kategori']) && isset($kat['nama_kategori'])): ?>
-                                <option value="<?= $kat['id_kategori']; ?>" <?= ($kategori_id == $kat['id_kategori']) ? 'selected' : ''; ?>>
-                                    <?= esc($kat['nama_kategori']); ?>
-                                </option>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Cari</button>
-                <a href="<?= base_url('/admin/artikel'); ?>" class="btn btn-secondary">Reset</a>
-            </div>
-        </div>
-    </form>
-</div>
-
-<!-- Tombol Tambah Artikel -->
-<div class="actions">
-    <a href="<?= base_url('/admin/artikel/add'); ?>" class="btn btn-primary">Tambah Artikel</a>
-</div>
-
-<!-- Flash Messages -->
-<?php if (session()->getFlashdata('success')): ?>
-    <div class="alert alert-success">
-        <?= session()->getFlashdata('success'); ?>
-    </div>
-<?php endif; ?>
-
-<?php if (session()->getFlashdata('error')): ?>
-    <div class="alert alert-danger">
-        <?= session()->getFlashdata('error'); ?>
-    </div>
-<?php endif; ?>
-
-<!-- Tabel Artikel -->
-<div class="table-responsive">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Judul</th>
-                <th>Kategori</th>
-                <th>Status</th>
-                <th>Dibuat</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (!empty($artikel) && is_array($artikel)): ?>
-                <?php $no = 1; ?>
-                <?php foreach ($artikel as $item): ?>
-                    <?php if (is_array($item)): ?>
-                        <tr>
-                            <td><?= $no++; ?></td>
-                            <td>
-                                <?= isset($item['judul']) ? esc($item['judul']) : 'Tidak ada judul'; ?>
-                            </td>
-                            <td>
-                                <?= isset($item['nama_kategori']) ? esc($item['nama_kategori']) : 'Tidak ada kategori'; ?>
-                            </td>
-                            <td>
-                                <span class="badge <?= (isset($item['status']) && $item['status'] == 'published') ? 'badge-success' : 'badge-warning'; ?>">
-                                    <?= isset($item['status']) ? ucfirst($item['status']) : 'Draft'; ?>
-                                </span>
-                            </td>
-                            <td>
-                                <?= isset($item['created_at']) ? date('d/m/Y H:i', strtotime($item['created_at'])) : '-'; ?>
-                            </td>
-                            <td class="actions">
-                                <?php if (isset($item['id'])): ?>
-                                    <a href="<?= base_url('/admin/artikel/edit/' . $item['id']); ?>" class="btn btn-sm btn-warning">Edit</a>
-                                    <a href="<?= base_url('/admin/artikel/delete/' . $item['id']); ?>" 
-                                       class="btn btn-sm btn-danger" 
-                                       onclick="return confirm('Yakin ingin menghapus artikel ini?')">Hapus</a>
-                                    <?php if (isset($item['slug'])): ?>
-                                        <a href="<?= base_url('/artikel/' . $item['slug']); ?>" 
-                                           class="btn btn-sm btn-info" target="_blank">Lihat</a>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
+<!-- Search dan Filter Form -->
+<div class="row mb-3">
+    <div class="col-md-8">
+        <form id="search-form" class="form-inline">
+            <input type="text" name="q" id="search-box" value="<?= $q; ?>" 
+                   placeholder="Cari judul artikel" class="form-control mr-2" style="width: 250px;">
+            <select name="kategori_id" id="category-filter" class="form-control mr-2" style="width: 200px;">
+                <option value="">Semua Kategori</option>
+                <?php foreach ($kategori as $k): ?>
+                    <option value="<?= $k['id_kategori']; ?>" <?= ($kategori_id == $k['id_kategori']) ? 'selected' : ''; ?>>
+                        <?= $k['nama_kategori']; ?>
+                    </option>
                 <?php endforeach; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="6" class="text-center">Tidak ada artikel ditemukan</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+            </select>
+            <input type="submit" value="Cari" class="btn btn-primary">
+            <button type="button" id="reset-btn" class="btn btn-secondary ml-2">Reset</button>
+        </form>
+    </div>
+    <div class="col-md-4 text-right">
+        <a href="<?= base_url('/admin/artikel/add'); ?>" class="btn btn-success">Tambah Artikel</a>
+    </div>
 </div>
 
-<!-- Pagination -->
-<?php if (isset($pager) && $pager): ?>
-    <div class="pagination-wrapper">
-        <?= $pager->links(); ?>
+<!-- Loading Indicator -->
+<div id="loading-indicator" style="display: none; text-align: center; padding: 20px;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
     </div>
-<?php endif; ?>
+    <p>Memuat data...</p>
+</div>
+
+<!-- Container untuk Artikel -->
+<div id="article-container">
+    <!-- Data artikel akan dimuat di sini via AJAX -->
+</div>
+
+<!-- Container untuk Pagination -->
+<div id="pagination-container">
+    <!-- Pagination akan dimuat di sini via AJAX -->
+</div>
+
+<!-- jQuery CDN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Element selectors
+    const articleContainer = $('#article-container');
+    const paginationContainer = $('#pagination-container');
+    const loadingIndicator = $('#loading-indicator');
+    const searchForm = $('#search-form');
+    const searchBox = $('#search-box');
+    const categoryFilter = $('#category-filter');
+    const resetBtn = $('#reset-btn');
+
+    // Current state
+    let currentSort = 'id';
+    let currentOrder = 'DESC';
+
+    // Function untuk fetch data via AJAX
+    const fetchData = (url) => {
+        // Show loading indicator
+        loadingIndicator.show();
+        articleContainer.hide();
+        paginationContainer.hide();
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(data) {
+                renderArticles(data.artikel);
+                renderPagination(data.pager, data.q, data.kategori_id);
+                currentSort = data.sort;
+                currentOrder = data.order;
+                
+                // Hide loading indicator
+                loadingIndicator.hide();
+                articleContainer.show();
+                paginationContainer.show();
+            },
+            error: function(xhr, status, error) {
+                loadingIndicator.hide();
+                articleContainer.html('<div class="alert alert-danger">Error loading data: ' + error + '</div>').show();
+            }
+        });
+    };
+
+    // Function untuk render artikel
+    const renderArticles = (articles) => {
+        let html = '<table class="table table-striped">';
+        html += '<thead class="thead-dark">';
+        html += '<tr>';
+        html += '<th><a href="#" class="sort-link text-white" data-sort="id">ID ' + getSortIcon('id') + '</a></th>';
+        html += '<th><a href="#" class="sort-link text-white" data-sort="judul">Judul ' + getSortIcon('judul') + '</a></th>';
+        html += '<th>Kategori</th>';
+        html += '<th><a href="#" class="sort-link text-white" data-sort="status">Status ' + getSortIcon('status') + '</a></th>';
+        html += '<th>Aksi</th>';
+        html += '</tr>';
+        html += '</thead>';
+        html += '<tbody>';
+
+        if (articles.length > 0) {
+            articles.forEach(article => {
+                html += `
+                    <tr>
+                        <td>${article.id}</td>
+                        <td>
+                            <b>${article.judul}</b>
+                            <p><small class="text-muted">${article.isi.substring(0, 50)}...</small></p>
+                        </td>
+                        <td><span class="badge badge-info">${article.nama_kategori || 'Tidak ada kategori'}</span></td>
+                        <td><span class="badge badge-success">${article.status}</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-info" href="<?= base_url('/admin/artikel/edit/') ?>${article.id}">Ubah</a>
+                            <a class="btn btn-sm btn-danger" onclick="return confirm('Yakin menghapus data?');" 
+                               href="<?= base_url('/admin/artikel/delete/') ?>${article.id}">Hapus</a>
+                        </td>
+                    </tr>
+                `;
+            });
+        } else {
+            html += '<tr><td colspan="5" class="text-center">Tidak ada data ditemukan.</td></tr>';
+        }
+        
+        html += '</tbody></table>';
+        articleContainer.html(html);
+    };
+
+    // Function untuk render pagination
+    const renderPagination = (pager, q, kategori_id) => {
+        if (!pager.links || pager.links.length === 0) {
+            paginationContainer.html('');
+            return;
+        }
+
+        let html = '<nav aria-label="Page navigation">';
+        html += '<ul class="pagination justify-content-center">';
+        
+        pager.links.forEach(link => {
+            let url = link.url ? `${link.url}&q=${encodeURIComponent(q)}&kategori_id=${kategori_id}&sort=${currentSort}&order=${currentOrder}` : '#';
+            let activeClass = link.active ? 'active' : '';
+            let disabledClass = !link.url ? 'disabled' : '';
+            
+            html += `<li class="page-item ${activeClass} ${disabledClass}">`;
+            if (link.url) {
+                html += `<a class="page-link pagination-link" href="${url}">${link.title}</a>`;
+            } else {
+                html += `<span class="page-link">${link.title}</span>`;
+            }
+            html += '</li>';
+        });
+        
+        html += '</ul></nav>';
+        paginationContainer.html(html);
+    };
+
+    // Function untuk mendapatkan icon sorting
+    const getSortIcon = (field) => {
+        if (currentSort === field) {
+            return currentOrder === 'ASC' ? '↑' : '↓';
+        }
+        return '↕';
+    };
+
+    // Event handler untuk form search
+    searchForm.on('submit', function(e) {
+        e.preventDefault();
+        const q = searchBox.val();
+        const kategori_id = categoryFilter.val();
+        fetchData(`<?= base_url('/admin/artikel') ?>?q=${encodeURIComponent(q)}&kategori_id=${kategori_id}&sort=${currentSort}&order=${currentOrder}`);
+    });
+
+    // Event handler untuk category filter change
+    categoryFilter.on('change', function() {
+        searchForm.trigger('submit');
+    });
+
+    // Event handler untuk reset button
+    resetBtn.on('click', function() {
+        searchBox.val('');
+        categoryFilter.val('');
+        currentSort = 'id';
+        currentOrder = 'DESC';
+        fetchData('<?= base_url('/admin/artikel') ?>');
+    });
+
+    // Event handler untuk pagination links
+    $(document).on('click', '.pagination-link', function(e) {
+        e.preventDefault();
+        const url = $(this).attr('href');
+        if (url !== '#') {
+            fetchData(url);
+        }
+    });
+
+    // Event handler untuk sorting
+    $(document).on('click', '.sort-link', function(e) {
+        e.preventDefault();
+        const sortField = $(this).data('sort');
+        
+        // Toggle order jika field yang sama
+        if (currentSort === sortField) {
+            currentOrder = currentOrder === 'ASC' ? 'DESC' : 'ASC';
+        } else {
+            currentSort = sortField;
+            currentOrder = 'ASC';
+        }
+        
+        const q = searchBox.val();
+        const kategori_id = categoryFilter.val();
+        fetchData(`<?= base_url('/admin/artikel') ?>?q=${encodeURIComponent(q)}&kategori_id=${kategori_id}&sort=${currentSort}&order=${currentOrder}`);
+    });
+
+    // Initial load
+    fetchData('<?= base_url('/admin/artikel') ?>');
+});
+</script>
 
 <style>
-.search-filter {
-    background: #f8f9fa;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-}
-
-.form-row {
+.form-inline {
     display: flex;
-    gap: 15px;
     align-items: center;
-    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.form-group {
-    flex: 1;
-    min-width: 200px;
-}
-
-.form-control {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.actions {
-    margin-bottom: 20px;
-}
-
-.btn {
-    display: inline-block;
-    padding: 8px 16px;
+.sort-link {
     text-decoration: none;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
+    color: inherit;
 }
 
-.btn-primary { background: #007bff; color: white; }
-.btn-secondary { background: #6c757d; color: white; }
-.btn-warning { background: #ffc107; color: #212529; }
-.btn-danger { background: #dc3545; color: white; }
-.btn-info { background: #17a2b8; color: white; }
-.btn-sm { padding: 4px 8px; font-size: 12px; }
-
-.table-responsive {
-    overflow-x: auto;
+.sort-link:hover {
+    text-decoration: none;
+    color: #f8f9fa;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-.table th,
-.table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
 }
 
 .badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 0.75em;
 }
 
-.badge-success { background: #28a745; color: white; }
-.badge-warning { background: #ffc107; color: #212529; }
-
-.alert {
-    padding: 12px;
-    margin-bottom: 20px;
-    border-radius: 4px;
+.pagination-link {
+    cursor: pointer;
 }
 
-.alert-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-danger {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.pagination-wrapper {
-    margin-top: 20px;
-    text-align: center;
-}
-
-.actions a {
-    margin-right: 5px;
+.table th {
+    border-top: none;
 }
 </style>
 
-<?= $this->endSection() ?>
+<?= $this->include('template/admin_footer'); ?>

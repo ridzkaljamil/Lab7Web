@@ -494,11 +494,11 @@ Saya membuat view untuk menampilkan data artikel dengan AJAX.
 
 ### 5. Testing
 
-Hasil testing menunjukkan semua fitur AJAX berjalan dengan baik:
+Hasil testing menunjukkan semua fitur AJAX berjalan dengan baik
 
 ### 6. Improvisasi
 
-Saya menambahkan fitur pencarian dan filter kategori dengan AJAX:
+Saya menambahkan fitur pencarian dan filter kategori dengan AJAX
 
 ## Pertanyaan dan Tugas
 
@@ -510,7 +510,51 @@ Saya telah menambahkan fungsi untuk menambah dan mengubah data artikel menggunak
 
 Saya menambahkan fitur pencarian dan filter kategori untuk meningkatkan fungsionalitas aplikasi.
 
-## Hasil Praktikum
+## Hasil Praktikum 8
 
 ![Gambar](screenshots/praktikum8/ss.png)
 
+# Praktikum 9: Implementasi AJAX Pagination dan Search
+
+## Langkah-langkah Praktikum
+
+### 1. Persiapan Data
+
+Saya menambahkan lebih banyak data artikel untuk testing pagination:
+
+![Gambar](screenshots/praktikum9/1.png)
+
+### 2. Modifikasi Controller Artikel
+
+Saya mengupdate method admin_index() untuk mendukung AJAX request:
+
+![Gambar](screenshots/praktikum9/2.png)
+
+### 3. Modifikasi View admin_index.php
+
+Saya mengubah view untuk menggunakan AJAX dengan fitur:
+
+- Search real-time
+- Filter kategori
+- Pagination tanpa reload
+- Sorting kolom
+
+![Gambar](screenshots/praktikum9/3.png)
+
+### 4. Testing Fitur
+
+Hasil testing menunjukkan semua fitur AJAX berjalan dengan baik
+
+## Pertanyaan dan Tugas
+
+Saya mengimplementasikan sorting untuk kolom ID, Judul, dan Status.
+
+## Hasil Praktikum 9
+
+Praktikum ini berhasil mengimplementasikan AJAX pagination dan search yang meningkatkan user experience dengan:
+
+- Tidak ada reload halaman
+- Response yang cepat
+- Interface yang responsif
+- Fitur sorting dan export tambahan
+  ![Gambar](screenshots/praktikum9/ss.png)

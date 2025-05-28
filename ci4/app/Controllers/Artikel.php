@@ -27,65 +27,55 @@ class Artikel extends BaseController
 
     public function admin_index()
     {
-        // Cek login admin
-        if (!session()->get('logged_in')) {
-            return redirect()->to('/user/login');
-        }
-        
         $title = 'Daftar Artikel (Admin)';
         $model = new ArtikelModel();
 
-        // Get search keyword
+        // Ambil parameter dari request
         $q = $this->request->getVar('q') ?? '';
-        // Get category filter
         $kategori_id = $this->request->getVar('kategori_id') ?? '';
+        $page = $this->request->getVar('page') ?? 1;
+        $sort = $this->request->getVar('sort') ?? 'id';
+        $order = $this->request->getVar('order') ?? 'DESC';
+
+        // Building the query dengan join
+        $builder = $model->table('artikel')
+                        ->select('artikel.*, kategori.nama_kategori')
+                        ->join('kategori', 'kategori.id_kategori = artikel.id_kategori', 'left');
+
+        // Apply search filter jika ada keyword
+        if ($q != '') {
+            $builder->like('artikel.judul', $q);
+        }
+
+        // Apply category filter jika ada kategori yang dipilih
+        if ($kategori_id != '') {
+            $builder->where('artikel.id_kategori', $kategori_id);
+        }
+
+        // Apply sorting
+        $builder->orderBy('artikel.' . $sort, $order);
+
+        // Apply pagination
+        $artikel = $builder->paginate(5, 'default', $page); // 5 artikel per halaman
+        $pager = $model->pager;
 
         $data = [
             'title' => $title,
             'q' => $q,
             'kategori_id' => $kategori_id,
+            'artikel' => $artikel,
+            'pager' => $pager,
+            'sort' => $sort,
+            'order' => $order
         ];
 
-        try {
-            // Building the query
-            $builder = $model->table('artikel')
-                            ->select('artikel.*, COALESCE(kategori.nama_kategori, "Tidak ada kategori") as nama_kategori')
-                            ->join('kategori', 'kategori.id_kategori = artikel.id_kategori', 'left');
-
-            // Apply search filter if keyword is provided
-            if ($q != '') {
-                $builder->like('artikel.judul', $q);
-            }
-
-            // Apply category filter if category_id is provided
-            if ($kategori_id != '') {
-                $builder->where('artikel.id_kategori', $kategori_id);
-            }
-
-            // Get results as array
-            $artikelData = $builder->paginate(10);
-            
-            // Pastikan data adalah array
-            if (is_array($artikelData)) {
-                $data['artikel'] = $artikelData;
-            } else {
-                log_message('error', 'Artikel data bukan array: ' . gettype($artikelData));
-                $data['artikel'] = [];
-            }
-            
-            $data['pager'] = $model->pager;
-
-            // Fetch all categories for the filter dropdown
+        // Jika request adalah AJAX, return JSON
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON($data);
+        } else {
+            // Jika bukan AJAX, tampilkan view normal
             $kategoriModel = new KategoriModel();
             $data['kategori'] = $kategoriModel->findAll();
-
-            return view('artikel/admin_index', $data);
-            
-        } catch (\Exception $e) {
-            log_message('error', 'Error di admin_index: ' . $e->getMessage());
-            $data['artikel'] = [];
-            $data['pager'] = null;
-            $data['kategori'] = [];
             return view('artikel/admin_index', $data);
         }
     }
