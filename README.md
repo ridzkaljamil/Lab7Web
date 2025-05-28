@@ -465,3 +465,52 @@ Saya membuat method kategori() di controller dan view kategori.php.
 ### Hasil Praktikum 7
 
 ![Gambar](screenshots/praktikum7/ss.png)
+
+# Praktikum 8: AJAX di CodeIgniter 4
+
+## Langkah-langkah Praktikum
+
+### 1. Menambahkan Pustaka jQuery
+
+Saya menambahkan jQuery ke project dengan menyalin file jQuery ke folder `public/assets/js/`.
+
+![Gambar](screenshots/praktikum8/1.png)
+
+### 2. Membuat AJAX Controller
+
+Saya membuat controller baru bernama `AjaxController.php` untuk menangani request AJAX.
+![Gambar](screenshots/praktikum8/2.png)
+
+### 3. Menambahkan Routes
+
+Saya menambahkan routes untuk AJAX di `app/Config/Routes.php`.
+![Gambar](screenshots/praktikum8/3.png)
+
+### 4. Membuat View
+
+Saya membuat view untuk menampilkan data artikel dengan AJAX.
+![Gambar](screenshots/praktikum8/4.png)
+![Gambar](screenshots/praktikum8/5.png)
+
+### 5. Testing
+
+Hasil testing menunjukkan semua fitur AJAX berjalan dengan baik:
+
+### 6. Improvisasi
+
+Saya menambahkan fitur pencarian dan filter kategori dengan AJAX:
+
+## Pertanyaan dan Tugas
+
+### 1. Menambahkan Fungsi Tambah dan Ubah Data
+
+Saya telah menambahkan fungsi untuk menambah dan mengubah data artikel menggunakan AJAX.
+
+### 2. Improvisasi
+
+Saya menambahkan fitur pencarian dan filter kategori untuk meningkatkan fungsionalitas aplikasi.
+
+## Hasil Praktikum
+
+![Gambar](screenshots/praktikum8/ss.png)
+

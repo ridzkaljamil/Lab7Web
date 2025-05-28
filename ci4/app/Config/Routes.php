@@ -29,6 +29,13 @@ $routes->get('/artikel/(:any)', 'Artikel::view/$1');
 // Route untuk kategori
 $routes->get('/kategori/(:segment)', 'Artikel::kategori/$1');
 
+// Routes untuk AJAX
+$routes->get('/ajax', 'AjaxController::index');
+$routes->get('/ajax/getData', 'AjaxController::getData');
+$routes->get('/ajax/getById/(:num)', 'AjaxController::getById/$1');
+$routes->post('/ajax/save', 'AjaxController::save');
+$routes->delete('/ajax/delete/(:num)', 'AjaxController::delete/$1');
+
 // Route untuk user
 $routes->get('/user/login', 'User::login');
 $routes->post('/user/login', 'User::login');

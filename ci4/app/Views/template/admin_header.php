@@ -14,6 +14,8 @@
         <a href="<?= base_url('/admin/artikel');?>" class="active">Dashboard</a>
         <a href="<?= base_url('/admin/artikel/add');?>">Tambah Artikel</a>
         <a href="<?= base_url('/artikel');?>">Portal Berita</a>
+        <!-- Tambahkan di bagian menu -->
+        <a href="<?= base_url('/ajax'); ?>">AJAX Demo</a>
         <a href="<?= base_url('/user/logout');?>" style="float: right;">Logout</a>
     </nav>
     <section id="wrapper">

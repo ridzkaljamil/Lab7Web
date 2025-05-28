@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Tambahkan di bagian head -->
+<meta name="csrf-token" content="<?= csrf_hash() ?>">
     <title><?= $title ?? 'Admin Panel' ?></title>
     <link rel="stylesheet" href="<?= base_url('/style.css') ?>">
     <style>
