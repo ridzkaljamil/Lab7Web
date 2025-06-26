@@ -37,14 +37,14 @@ $routes->post('/ajax/save', 'AjaxController::save');
 $routes->delete('/ajax/delete/(:num)', 'AjaxController::delete/$1');
 
 // Route untuk user
+$routes->match(['get', 'post'], 'user/register', 'User::register');
 $routes->get('/user/login', 'User::login');
 $routes->post('/user/login', 'User::login');
 $routes->get('/user/logout', 'User::logout');
-$routes->get('/user/register', 'User::register');
-$routes->post('/user/register', 'User::register');
+
 
 // Route untuk admin dengan filter auth
-$routes->group('admin', ['filter' => 'auth'], function($routes) {
+$routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'User::dashboard');
     $routes->get('artikel', 'Artikel::admin_index');
     $routes->get('artikel/add', 'Artikel::add');

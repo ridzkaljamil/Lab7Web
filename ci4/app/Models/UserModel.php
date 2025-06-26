@@ -6,8 +6,15 @@ use CodeIgniter\Model;
 
 class UserModel extends Model
 {
-    protected $table = 'user';
+    protected $table = 'user'; // Nama tabel yang benar
     protected $primaryKey = 'id';
-    protected $useAutoIncrement = true;
     protected $allowedFields = ['username', 'useremail', 'userpassword'];
+    protected $useTimestamps = false;
+    protected $returnType = 'array';
+    protected $validationRules = [
+        'username' => 'required|is_unique[user.username]',
+        'email' => 'required|valid_email|is_unique[user.useremail]',
+        'password' => 'required|min_length[6]',
+    ];
+
 }

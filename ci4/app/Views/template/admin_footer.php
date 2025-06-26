@@ -1,8 +1,9 @@
-</section>
-    </section>
-    <footer>
-        <p>&copy; 2021 - Universitas Pelita Bangsa</p>
-    </footer>
-    </div>
+</main>
+<footer>
+    <hr>
+    <p>&copy; 2024 Admin Panel. All rights reserved.</p>
+</footer>
+</div>
 </body>
+
 </html>

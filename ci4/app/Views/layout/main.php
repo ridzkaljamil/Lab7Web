@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,6 +8,7 @@
     <title><?= isset($title) ? $title : 'Website Artikel'; ?></title>
     <link rel="stylesheet" href="<?= base_url('/style.css'); ?>">
 </head>
+
 <body>
     <div id="container">
         <header>
@@ -23,28 +25,27 @@
                 <?php endif; ?>
             </nav>
         </header>
-        
+
         <section id="wrapper">
             <section id="main">
                 <?= $this->renderSection('content'); ?>
             </section>
-            
+
             <aside id="sidebar">
-                <!-- Tambahkan di sidebar -->
-<div class="widget-box">
-    <h3 class="title">Kategori</h3>
-    <ul>
-        <?php 
-        $kategoriModel = new \App\Models\KategoriModel();
-        $kategoris = $kategoriModel->findAll();
-        foreach($kategoris as $k): 
-        ?>
-        <li><a href="<?= base_url('/kategori/' . $k['slug_kategori']) ?>"><?= $k['nama_kategori'] ?></a></li>
-        <?php endforeach; ?>
-    </ul>
-</div>          
-                <?php 
-                // Panggil cell dengan parameter kosong untuk menghindari error
+                <div class="widget-box">
+                    <h3 class="title">Kategori</h3>
+                    <ul>
+                        <?php
+                        $kategoriModel = new \App\Models\KategoriModel();
+                        $kategoris = $kategoriModel->findAll();
+                        foreach ($kategoris as $k):
+                            ?>
+                            <li><a href="<?= base_url('/kategori/' . $k['slug_kategori']) ?>"><?= $k['nama_kategori'] ?></a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php
                 try {
                     echo view_cell('\\App\\Cells\\ArtikelTerkini::render', []);
                 } catch (\Exception $e) {
@@ -54,10 +55,11 @@
                 ?>
             </aside>
         </section>
-        
+
         <footer>
             <p>&copy; 2024 - Universitas Pelita Bangsa</p>
         </footer>
     </div>
 </body>
+
 </html>

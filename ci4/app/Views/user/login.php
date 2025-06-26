@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Admin Login</title>
     <link rel="stylesheet" href="<?= base_url('/style.css');?>">
 </head>
 <body>
