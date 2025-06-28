@@ -558,3 +558,56 @@ Praktikum ini berhasil mengimplementasikan AJAX pagination dan search yang menin
 - Interface yang responsif
 - Fitur sorting dan export tambahan
   ![Gambar](screenshots/praktikum9/ss.png)
+
+# Praktikum 10: API
+
+## Langkah-langkah Praktikum
+
+### 1. Persiapan
+
+Menginstall postman, membuat database dan mengatur konfigurasinya
+
+![Gambar](screenshots/praktikum10/1.png)
+
+### 2. Membuat REST Controller
+
+- Membuat file `Post.php` di `app/Controllers` untuk menangani operasi CRUD.
+- Kode controller: (lihat file `Post.php`).
+  ![Gambar](screenshots/praktikum10/2.png)
+
+### 4. Membuat Routing
+
+- Menambahkan rute di `app/Config/Routes.php`:
+  ```php
+  $routes->resource('post');
+  ```
+  ![Gambar](screenshots/praktikum10/3.png)
+- Memeriksa rute dengan perintah:
+  ```bash
+  php spark routes
+  ```
+  ![Gambar](screenshots/praktikum10/4.png)
+
+### 5. Pengujian dengan Postman
+
+- **Menampilkan semua data (GET)**:
+  - URL: `http://localhost:8080/post`
+    ![Gambar](screenshots/praktikum10/5.png)
+- **Menambahkan data (POST)**:
+  - URL: `http://localhost:8080/post`
+  - Body: `judul=Artikel Baru&isi=Ini adalah isi artikel baru`
+    ![Gambar](screenshots/praktikum10/6.png)
+- **Menampilkan data berdasarkan ID (GET)**:
+  - URL: `http://localhost:8080/post/1`
+    ![Gambar](screenshots/praktikum10/7.png)
+- **Mengubah data (PUT)**:
+  - URL: `http://localhost:8080/post/2`
+  - Body: `judul=Artikel Diubah&isi=Ini adalah isi artikel yang diubah`
+    ![Gambar](screenshots/praktikum10/8.png)
+- **Menghapus data (DELETE)**:
+  - URL: `http://localhost:8080/post/2`
+    ![Gambar](screenshots/praktikum10/9.png)
+
+## Kesimpulan
+
+Praktikum ini berhasil mengimplementasikan REST API dengan CodeIgniter 4 untuk operasi CRUD. API diuji menggunakan Postman, dan semua fungsi (GET, POST, PUT, DELETE) berjalan dengan baik.
